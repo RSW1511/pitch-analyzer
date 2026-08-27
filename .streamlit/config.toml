@@ -1,0 +1,8 @@
+[server]
+# Default is 200 MB. Raise it so browser uploads of larger clips work.
+# (For multi-GB files, prefer the "Path on server" mode in the UI instead of
+#  uploading through the browser — it's far more reliable.)
+maxUploadSize = 5000
+
+[browser]
+gatherUsageStats = false

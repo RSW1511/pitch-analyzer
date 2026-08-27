@@ -1,0 +1,17 @@
+# Core pipeline
+faster-whisper
+librosa
+numpy
+soundfile
+requests
+
+# Web UI
+streamlit
+pandas
+
+# Visual analysis (optional — comment out if MediaPipe won't install)
+mediapipe
+opencv-python
+
+# GPU users only: install PyTorch separately for CUDA detection, e.g.
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
