@@ -2,6 +2,7 @@
 faster-whisper
 librosa
 numpy
+pandas
 soundfile
 requests
 
