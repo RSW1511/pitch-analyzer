@@ -30,23 +30,37 @@ DEFAULT_RUBRIC = [
      "description": "Are claims backed by concrete data and examples?"},
 ]
 
+
+def normalize_rubric(edited) -> list:
+    """st.data_editor may return a DataFrame or a list — always give back a
+    clean list of dicts so the rest of the code can rely on .get()."""
+    if isinstance(edited, pd.DataFrame):
+        rows = edited.to_dict(orient="records")
+    else:
+        rows = list(edited)
+    out = []
+    for r in rows:
+        if isinstance(r, dict):
+            out.append(r)
+    return out
+
+
 # ---------------------------------------------------------------- sidebar ----
 with st.sidebar:
     st.header("⚙️ Configuration")
     whisper_size = st.selectbox(
         "Whisper model", ["tiny", "base", "small", "medium", "large-v3"],
         index=1,
-        help="Bigger = more accurate but slower. Use large-v3 for real grading.")
+        help="Bigger = more accurate but slower. On 8 GB RAM, stick to base.")
     st.divider()
     st.subheader("LLM (grading brain)")
     llm_base_url = st.text_input("LLM base URL", "http://localhost:11434/v1")
-    llm_model = st.text_input("LLM model", "gemma3:27b")
+    llm_model = st.text_input("LLM model", "qwen2.5:7b")
     llm_api_key = st.text_input("API key", "not-needed", type="password")
     st.divider()
     do_visual = st.checkbox(
-        "Visual analysis (MediaPipe)", value=True,
-        help="Face presence + gesture activity. Turn off to run faster or if "
-             "MediaPipe isn't installed.")
+        "Visual analysis (MediaPipe)", value=False,
+        help="Needs Python 3.9-3.12. Leave OFF on Python 3.13.")
 
 # ------------------------------------------------------------------- header ---
 st.title("🎤 Pitch Presentation Analyzer")
@@ -72,7 +86,7 @@ if mode.startswith("Upload"):
         st.video(up)
 else:
     p = st.text_input("Absolute path to the video on this machine",
-                      placeholder="/data/videos/talk.mp4")
+                      placeholder=r"C:\Users\rohan\videos\talk.mp4")
     if p:
         if os.path.exists(p):
             video_path = p
@@ -90,14 +104,14 @@ else:
     rubric_rows = DEFAULT_RUBRIC
 
 edited = st.data_editor(
-    rubric_rows, num_rows="dynamic", use_container_width=True, key="rubric_editor",
+    rubric_rows, num_rows="dynamic", width="stretch", key="rubric_editor",
     column_config={
         "name": st.column_config.TextColumn("Criterion", width="medium"),
         "max_points": st.column_config.NumberColumn("Max points",
                                                     min_value=1, max_value=100),
         "description": st.column_config.TextColumn("Description", width="large"),
     })
-rubric = {"criteria": edited}
+rubric = {"criteria": normalize_rubric(edited)}
 
 # --------------------------------------------------------------- 3. analyze ---
 st.subheader("3 · Analyze")
@@ -151,20 +165,26 @@ if "report" in st.session_state:
     st.divider()
     st.header("📊 Results")
 
-    if "error" in grading:
+    if not isinstance(grading, dict) or "error" in grading:
         st.warning("The LLM didn't return valid JSON. Raw output below.")
-        st.code(grading.get("raw", ""))
+        raw = grading.get("raw", "") if isinstance(grading, dict) else str(grading)
+        st.code(raw)
     else:
         scores = grading.get("rubric_scores", [])
+
+        # score total — computed defensively so a stray rubric row can't crash it
+        max_total = sum(c.get("max_points", 0) for c in rubric["criteria"]
+                        if isinstance(c, dict))
+        if not max_total:
+            max_total = sum((s.get("max", 0) or 0) for s in scores)
         total = grading.get("total_score")
-        max_total = sum(c.get("max_points", 0) for c in rubric["criteria"])
 
         c1, c2 = st.columns([1, 3])
         c1.metric("Total score", f"{total} / {max_total}")
         c2.dataframe(
             [{"Criterion": s.get("criterion"), "Score": s.get("score"),
               "Max": s.get("max")} for s in scores],
-            use_container_width=True, hide_index=True)
+            width="stretch", hide_index=True)
 
         for s in scores:
             with st.expander(f"{s.get('criterion')} — {s.get('score')}/{s.get('max')}"):
