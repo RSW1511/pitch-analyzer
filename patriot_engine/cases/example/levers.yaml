@@ -1,0 +1,20 @@
+# Illustrative lever defaults for the example case. These are NOT any company's rates:
+# replace them with the pricing manager's values before approving a real bid.
+# "@cal.<name>|<default>" takes the value reverse-engineered by `init --calibrate`, else the default.
+gov:
+  - {key: hours.sca_total, description: "Paid hours per SCA FTE-year", unit: hours, value: 2080, source: "Price Matrix SCLS Breakout", confidence: High}
+  - {key: hours.sca_vacation, description: "SCA vacation hours", unit: hours, value: 80, source: "Wage determination", confidence: High}
+  - {key: hours.sca_sick, description: "SCA sick hours", unit: hours, value: 56, source: "Company policy", confidence: Medium}
+  - {key: hours.exempt_divisor, description: "Divisor for exempt hourly rate", unit: hours, value: 2080, source: "Company method", confidence: Medium}
+levers:
+  - {key: hours.exempt_billed, description: "Billed hours per exempt FTE-year", unit: hours, values: 1912, source: "Evaluation plan, productive-hours basis", confidence: Medium}
+  - {key: rate.fringe, description: "Fringe on exempt salary", unit: pct, values: ["0.30", "0.28", "0.32"], source: "Illustrative", confidence: Low}
+  - {key: rate.overhead, description: Overhead, unit: pct, values: ["0.02", "0.015", "0.03"], source: "Illustrative", confidence: Low}
+  - {key: rate.ga, description: "G&A", unit: pct, values: ["0.03", "0.025", "0.04"], source: "Illustrative", confidence: Low}
+  - {key: rate.fee, description: "Fee / profit", unit: pct, values: ["0.06", "0.04", "0.08"], source: "Illustrative", confidence: Low}
+  - {key: esc.exempt.oy1, description: "Non-SCA salary escalation, option period 1", unit: pct, values: ["@cal.esc_oy1|0.02", "0.01", "0.03"], source: "Illustrative", confidence: Low}
+  - {key: esc.exempt.oy2, description: "Non-SCA salary escalation, option period 2", unit: pct, values: ["@cal.esc_oy2|0.02", "0.01", "0.03"], source: "Illustrative", confidence: Low}
+  - {key: exempt.adder, description: "Per-FTE-year adder on exempt lines", unit: usd, values: ["@cal.exempt_adder|0", "@cal.exempt_adder|0", "@cal.exempt_adder|0"], source: "Illustrative", confidence: Low}
+  - {key: exempt.salary_steps, description: "GS step offset applied to every exempt salary", unit: steps, values: [0, -1, 1], source: "OPM General Schedule", confidence: Medium}
+  - {key: exempt.step_value, description: "Approximate value of one GS step", unit: pct, values: "0.03", source: "Approximation", confidence: Low}
+  - {key: fte.rtl, description: "Team leads", unit: FTE, values: [1, 1, 2], source: "Staffing table", confidence: High, status: "Conflict flagged", rationale: "Table and text may disagree; priced to the table, alternative flagged (Rule 2)."}

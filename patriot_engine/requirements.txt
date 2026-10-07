@@ -1,0 +1,8 @@
+# Patriot Pricing Engine (separate from the root Streamlit pitch-analyzer requirements)
+openpyxl>=3.1
+python-docx>=1.1
+PyYAML>=6.0
+requests>=2.31
+pytest>=8.0          # tests only
+# Optional: LibreOffice (soffice) for the independent workbook recalculation / penny check,
+#           pdftotext (poppler) for reading PDFs at intake.

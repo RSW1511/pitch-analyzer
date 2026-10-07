@@ -1,0 +1,72 @@
+# Synthetic example case (invented numbers) used by the tests and as a template for a new bid.
+name: TOY
+solicitation: TOY-001
+periods:
+- key: base
+  months: 10
+  label: base
+- key: oy1
+  months: 12
+- key: oy2
+  months: 12
+odc:
+  base: 1000
+  oy1: 1000
+  oy2: 1000
+odc_optional:
+  base: 100
+  oy1: 100
+  oy2: 100
+extension_months: 6
+extension_includes_odc: false
+oconus_places:
+- tokyo
+site_aliases: {}
+roles:
+  pm:
+    labor_category: Program Manager
+    pws_ref: '5.1'
+    lcat_id: 1
+    salary_match: Program Manager
+  rtl:
+    labor_category: Team Lead
+    pws_ref: '5.2'
+    lcat_id: 2
+    salary_match: Team Lead
+  support_lead:
+    labor_category: Team Lead
+    pws_ref: '5.3'
+    lcat_id: 2
+    salary_match: Support Lead
+  support:
+    labor_category: Support Coordinator
+    pws_ref: '5.4'
+    lcat_id: 3
+    salary_match: Support Coordinator
+  rcc:
+    labor_category: Advocate
+    pws_ref: '5'
+    lcat_id: 4
+  tcc:
+    labor_category: Advocate
+    pws_ref: '5'
+    lcat_id: 4
+  rcc_opt2:
+    labor_category: Advocate
+    pws_ref: 5.11.2
+    lcat_id: 4
+  tsgli_adj:
+    labor_category: Adjudicator
+    pws_ref: 5.11.1
+    lcat_id: 5
+  tsgli_cns:
+    labor_category: Advocate
+    pws_ref: 5.11.1
+    lcat_id: 4
+splits:
+  rtl_sl:
+    rtl: 1
+    support_lead: 1
+  tsgli_opt1:
+    tsgli_adj: 1
+    tsgli_cns: 1

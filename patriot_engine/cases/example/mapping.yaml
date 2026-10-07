@@ -1,0 +1,90 @@
+# Engine -> government template mapping for a price matrix workbook (summary, labor tabs,
+# optional-task tabs, SCLS breakout, pricing assumptions).
+# One mapping file per solicitation: price matrices differ by bid (RCC used 0004, ACS 0006).
+# Game Plan section 9: the mapping also lists the template's traps and the Vol III blank list.
+template: price_matrix_template.xlsx
+
+summary:
+  sheet: SUMMARY
+  offeror_name: E4
+  cage_code: E5
+  version: E6
+  date: E7
+  clin_cells:           # engine (period, task) -> SUMMARY cell. Formulas link to labor tabs.
+    base:  {labor: K13, opt1: K15, opt2: K17, odc: K19, odc_opt: K25, total: K27}
+    oy1:   {labor: K31, opt1: K33, opt2: K35, odc: K37, odc_opt: K39, total: K41}
+    oy2:   {labor: K45, opt1: K47, opt2: K49, odc: K51, odc_opt: K53, total: K55}
+  grand_total: K58
+
+# Labor tabs: one sheet per period.
+labor:
+  sheets:
+    base: "Labor Base Full Performance"
+    oy1:  "Labor Option Period 1"
+    oy2:  "Labor Option Period 2"
+  header_row: 15
+  example_row: 16
+  first_row: 17
+  template_slots: 14      # rows 17..30 in the blank; SUM(N17:N30) is a trap when more rows are needed
+  columns: {id: A, category: B, merge_to: G, place: H, prime: I, pws: J, site: K, scls: L, fte: M, hours: N, unit: O, rate: P, ext: Q}
+
+# Optional-task tabs carry three periods side by side.
+optional:
+  sheets: {opt1: "Optional Task 1 (PWS 5.11.1)", opt2: "Optional Task 2 (PWS 5.11.2)"}
+  header_row: 19
+  example_row: 20
+  first_row: 21
+  template_slots: 14
+  columns: {id: A, category: B, merge_to: G, place: H, prime: I, pws: J, site: K, scls: L, fte: M}
+  period_columns:
+    base: {hours: N, unit: O, rate: P, ext: Q}
+    oy1:  {hours: R, unit: S, rate: T, ext: U}
+    oy2:  {hours: V, unit: W, rate: X, ext: Y}
+
+scls:
+  sheet: "SCLS Breakout"
+  example_row: 13
+  first_row: 14
+  columns:
+    category: A
+    place: B
+    site: C
+    wd_number: D
+    wd_rev: E
+    occupation: F
+    occ_code: G
+    hours_total: H
+    vacation_h: I
+    sick_h: J
+    holiday_h: K
+    productive_h: L
+    wage: M
+    total_wages: N
+    vacation: O
+    sick: P
+    holiday: Q
+    hw_rate: R
+    hw: S
+    indirects: T
+    rate: U
+
+assumptions:
+  sheet: "Pricing Assumptions"
+  first_row: 10   # numbered rows 1..12 (A10:A21) hold explanations in column B
+  column: B
+
+# Vol III = Vol II with every pricing cell blanked. Cells are per-sheet column letters,
+# blanked for every data row. (TOEP III.3.3: "less all proposed pricing rates"; a prior
+# Vol III also blanked wages, H&W and the overhead block.)
+vol3_blank:
+  labor_columns: [rate, ext]
+  optional_columns: [rate, ext]
+  scls_columns: [wage, total_wages, vacation, sick, holiday, hw_rate, hw, indirects, rate]
+  summary_cells: [K13, K15, K17, K27, K31, K33, K35, K41, K45, K47, K49, K55, K58]
+
+# Template traps found in this matrix family (Rule 18).
+traps:
+  - duplicate_clin_numbers: ["CLIN 0003", "CLIN 0004", "CLIN 0005"]
+  - fixed_sum_range_rows: 14
+  - hard_coded_cells: [K19, K25, K37, K39, K51, K53]
+  - external_links: true

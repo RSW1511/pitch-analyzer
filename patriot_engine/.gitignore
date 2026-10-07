@@ -1,0 +1,9 @@
+# Client documents and Patriot-internal figures never go in git (deck slide 8:
+# "Client documents stay in Patriot's library; only derived figures leave it").
+bids/
+*.local.*
+__pycache__/
+.pytest_cache/
+cases/rcc/
+tests/test_rcc_regression.py
+local/
