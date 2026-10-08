@@ -94,6 +94,19 @@ def test_full_workflow(bid, capsys):
     assert any('"event": "export"' in l for l in log)
 
 
+def test_export_without_libreoffice_warns_but_succeeds_unless_strict(bid, monkeypatch, capsys):
+    from patriot_engine import export as X
+
+    cli.main(["init", str(bid), "--default-burden", "0.09"])
+    cli.main(["approve", str(bid), "--by", "Pricing Manager"])
+    monkeypatch.setattr(X.shutil, "which", lambda *_: None)  # simulate a machine with no LibreOffice
+    cli.main(["export", str(bid), "--scenario", "Base"])  # must not raise
+    out = capsys.readouterr().out
+    assert "WARNING" in out and "NOT CONFIRMED" in out
+    with pytest.raises(SystemExit):
+        cli.main(["export", str(bid), "--scenario", "Base", "--require-recalc"])
+
+
 def test_init_is_repeatable(bid):
     cli.main(["init", str(bid), "--default-burden", "0.09"])
     first = (bid / "10-working" / "assumptions.csv").read_text()

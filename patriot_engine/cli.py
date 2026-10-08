@@ -254,14 +254,18 @@ def cmd_export(a):
     problems += [f"hygiene (Vol II): {d}" for d in X.hygiene_check(out)]
     problems += [f"hygiene (Vol III): {d}" for d in X.hygiene_check(v3)]
     problems += [f"Vol III leaks a price: {d}" for d in X.vol3_leaks(v3, res)]
+    warnings_ = []
     tot = X.recalc_totals(out, ws.mapping)
     if tot is None:
-        problems.append("penny check SKIPPED: LibreOffice not found")
+        msg = "independent recalculation SKIPPED: LibreOffice (soffice) not found, so the workbook formulas were not re-checked against Python"
+        (problems if a.require_recalc else warnings_).append(msg)
     else:
         problems += [f"penny mismatch: {d}" for d in X.penny_match(res, tot)]
     print(f"wrote {out.name} and {v3.name}")
     print(f"  matrix {round_cents(res.matrix_total):,}  TEP {round_cents(res.tep):,}  assumptions {ver} approved by {appr['approver']}")
     print(f"  workbook recalculated independently: " + ("matches Python to the penny" if tot is not None and not [p for p in problems if p.startswith('penny')] else "NOT CONFIRMED"))
+    for w in warnings_:
+        print("  WARNING", w)
     for p in problems:
         print("  PROBLEM", p)
     for n_ in rep.notes:
@@ -361,7 +365,7 @@ def main(argv=None):
     sp = add("price", cmd_price); sp.add_argument("--target"); sp.add_argument("--allow-unapproved", action="store_true")
     add("diff", cmd_diff)
     sp = add("questions", cmd_questions); sp.add_argument("--asked", action="append", help="a question we already asked (repeatable)"); sp.add_argument("--as-of", choices=["current", "prior"], default="current", help="which statement version to question")
-    sp = add("export", cmd_export); sp.add_argument("--scenario", required=True); sp.add_argument("--assumption-text", action="append")
+    sp = add("export", cmd_export); sp.add_argument("--scenario", required=True); sp.add_argument("--require-recalc", action="store_true", help="fail if the independent LibreOffice recalculation cannot run"); sp.add_argument("--assumption-text", action="append")
     add("replay", cmd_replay)
     sp = add("record", cmd_record)
     sp.add_argument("--scenario", default="Base"); sp.add_argument("--outcome", required=True, choices=["Won", "Lost", "No bid"])
