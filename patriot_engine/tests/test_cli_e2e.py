@@ -86,7 +86,14 @@ def test_full_workflow(bid, capsys):
     assert len(outs) == 2 and outs[0].endswith(".xlsx") and "VolIII" in outs[1]
     assert "Base_v1_" in outs[0]  # scenario + version in the file name
 
-    ap.write_text(ap.read_text().replace("0.02,0.015,0.04", "0.02,0.015,0.05", 1))
+    # a second export before any edit is fine and gets the next version number
+    cli.main(["export", str(bid), "--scenario", "Base"])
+    assert sorted(p.name for p in (bid / "20-outputs").iterdir() if "VolIII" not in p.name)[-1].startswith("TOY_submission_Base_v2_")
+
+    before = ap.read_text()
+    assert "0.06,0.04,0.08" in before  # the example fee row: Base, Aggressive, Conservative
+    ap.write_text(before.replace("0.06,0.04,0.08", "0.06,0.04,0.09", 1))
+    assert ap.read_text() != before
     with pytest.raises(SystemExit):
         cli.main(["export", str(bid), "--scenario", "Base"])  # file changed after approval
 

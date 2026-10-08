@@ -242,8 +242,10 @@ def cmd_export(a):
         sys.exit("export stopped: fix the blockers above")
     ver = A.version_label(ws.assumptions_path)
     out_dir = root / "20-outputs"
-    existing = list(out_dir.glob(f"{ws.cfg['name']}_submission_{a.scenario}_*"))
-    n = len({p.name.split("_VolIII")[0] for p in existing}) + 1
+    import re as _re
+
+    taken = [int(m.group(1)) for p in out_dir.glob(f"{ws.cfg['name']}_submission_{a.scenario}_v*") if (m := _re.search(r"_v(\d+)_", p.name))]
+    n = max(taken, default=0) + 1  # next version number; the Vol III file shares its Vol II's number
     out = out_dir / f"{ws.cfg['name']}_submission_{a.scenario}_v{n}_{ver}.xlsx"
     rep = X.export_submission(ws.case, res, s, ws.template, ws.mapping, out, ws.bid["offeror"], pricing_assumptions=a.assumption_text or [], assumptions_version=ver)
     v3 = out.with_name(out.stem + "_VolIII.xlsx")
